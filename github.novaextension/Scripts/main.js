@@ -8,7 +8,6 @@ const github = require('github')
 nova.commands.register("github.openFile", (editor) => {
   console.clear()
   github.load(nova.workspace.path).then((repository) => {
-    // console.log(repository.branch)
-    console.log('command done: ', repository.url)
+    repository.view(editor.document)
   })
 });

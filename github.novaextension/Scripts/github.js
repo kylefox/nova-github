@@ -29,48 +29,25 @@ class Repository {
     return git(command, this.directory)
   }
   
+  view(document) {
+    const path = document.path.replace(nova.workspace.path, '')
+    const url = `${this.url}/blob/${this.branch}${path}`
+    nova.openURL(url)
+  }
+  
   load(path) {
     return new Promise((resolve, reject) => {
-      this.run('remote get-url origin').then((remoteURL) => {
-        console.log('got remoteURL: ', remoteURL)
-        resolve(remoteURL)
-        this.remote = { url: remoteURL }
-        this.url = 'neat' //remoteGitHubURL(remoteURL)
-      //   
-      //   this.run('branch --show-current').then((branch) => {
-      //     this.branch = branch
-      //     console.log('Repository#load')
-      //     console.log(remoteURL)
-      //     console.log(resolve)
-      //     resolve(repository)
-      //     
-      //     // const url = remoteGitHubURL(remoteURL);
-      //     // const path = editor.document.path.replace(nova.workspace.path, '')
-      //     // const fullURL = `${url}/blob/${branch}${path}`
-      //     // nova.openURL(fullURL)
-      //   });
+      this.run('remote get-url origin').then((remoteURL) => {        
+        this.run('branch --show-current').then((branch) => {
+          this.remote = { url: remoteURL, name: 'origin' }
+          this.url = remoteGitHubURL(remoteURL)
+          this.branch = branch
+          resolve(this)
+        });
       })
     })
   }
 }
-
-//   console.clear()
-// 
-//   const repository = repositoryForDirectory(nova.workspace.path)
-//   
-//   if(!repository) {
-//     console.warn("No git repository found.")
-//     return
-//   }
-//   
-  // repository.run('remote get-url origin').then((remoteURL) => {
-  //   repository.run('branch --show-current').then((branch) => {
-  //     const url = remoteGitHubURL(remoteURL);
-  //     const path = editor.document.path.replace(nova.workspace.path, '')
-  //     const fullURL = `${url}/blob/${branch}${path}`
-  //     nova.openURL(fullURL)
-  //   });
-  // })
 
 const repositoryForDirectory = (directory) => {
   const gitDirectory = nova.path.join(directory, '.git')
@@ -88,9 +65,7 @@ module.exports = {
     
     return new Promise((resolve, reject) => {
       if(repository) {
-        repository.load().then((bacon) => {
-          console.log('github.load')
-          console.log(bacon)
+        repository.load().then(() => {
           resolve(repository)
         })
       } else {
