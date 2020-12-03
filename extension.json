@@ -1,5 +1,5 @@
 {
-    "identifier": "kylefox.gituhb",
+    "identifier": "kylefox.github",
     "name": "GitHub",
     "organization": "Kyle Fox",
     "description": "Lorem ipsum, dolor sit amet.",
@@ -13,7 +13,6 @@
     ],
     
     "entitlements": {
-        "requests": true,
         "filesystem": "readonly",
         "process": true
     },
