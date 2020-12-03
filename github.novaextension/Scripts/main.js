@@ -5,9 +5,10 @@
 
 const github = require('github')
 
-nova.commands.register("github.openFile", (editor) => {
-  console.clear()
-  github.load(nova.workspace.path).then((repository) => {
-    repository.view(editor.document)
-  })
+nova.commands.register("github.viewFile", (editor) => {
+  github.viewFile(editor.document.path) 
+});
+
+nova.commands.register("github.viewBlame", (editor) => {
+  github.viewBlame(editor.document.path) 
 });

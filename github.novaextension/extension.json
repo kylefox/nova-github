@@ -20,8 +20,12 @@
     "commands": {
         "editor": [
             {
-                "title": "Open file in GitHub",
-                "command": "github.openFile"
+                "title": "View file on GitHub",
+                "command": "github.viewFile"
+            },
+            {
+                "title": "View blame on GitHub",
+                "command": "github.viewBlame"
             }
         ]
     }

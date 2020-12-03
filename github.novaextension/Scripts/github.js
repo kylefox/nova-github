@@ -29,9 +29,15 @@ class Repository {
     return git(command, this.directory)
   }
   
-  view(document) {
-    const path = document.path.replace(nova.workspace.path, '')
+  view(path) {
+    path = path.replace(nova.workspace.path, '')
     const url = `${this.url}/blob/${this.branch}${path}`
+    nova.openURL(url)
+  }
+  
+  blame(path) {
+    path = path.replace(nova.workspace.path, '')
+    const url = `${this.url}/blame/${this.branch}${path}`
     nova.openURL(url)
   }
   
@@ -59,21 +65,31 @@ const repositoryForDirectory = (directory) => {
   }
 }
 
-module.exports = {
-  load: (directory) => {
-    const repository = repositoryForDirectory(directory)
-    
-    return new Promise((resolve, reject) => {
-      if(repository) {
-        repository.load().then(() => {
-          resolve(repository)
-        })
-      } else {
-        console.warn(`No git repository in ${directory}`)
-        reject(null)
-      }
-    })
-  }
+const load = (directory) => {
+  const repository = repositoryForDirectory(directory)
+  
+  return new Promise((resolve, reject) => {
+    if(repository) {
+      repository.load().then(() => {
+        resolve(repository)
+      })
+    } else {
+      console.warn(`No git repository in ${directory}`)
+      reject(null)
+    }
+  })
 }
 
-// // https://github.com/rewardful/rewardful/blame/master/app/models/campaign.rb
+const viewFile = (path) => {
+  load(nova.workspace.path).then((repository) => {
+    repository.view(path)
+  })
+}
+
+const viewBlame = (path) => {
+  load(nova.workspace.path).then((repository) => {
+    repository.blame(path)
+  })
+}
+
+module.exports = { viewFile, viewBlame }
