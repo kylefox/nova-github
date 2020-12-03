@@ -1,0 +1,29 @@
+{
+    "identifier": "kylefox.gituhb",
+    "name": "GitHub",
+    "organization": "Kyle Fox",
+    "description": "Lorem ipsum, dolor sit amet.",
+    "version": "1.0",
+    "categories": ["commands"],
+    
+    "main": "main.js",
+    
+    "activationEvents": [
+        "*"
+    ],
+    
+    "entitlements": {
+        "requests": true,
+        "filesystem": "readonly",
+        "process": true
+    },
+    
+    "commands": {
+        "editor": [
+            {
+                "title": "Open file in GitHub",
+                "command": "github.openFile"
+            }
+        ]
+    }
+}
