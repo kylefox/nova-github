@@ -1,57 +1,20 @@
-const git = (command, cwd) => {
-  const git = new Process("/usr/bin/env", {
-    args: `git ${command}`.split(' '),
-    cwd: cwd
-  });
-  
-  const promise = new Promise((resolve, reject) => {
-    git.onStdout((output) => {
-      resolve(output.replace(/(?:\r\n|\r|\n)/g, '').trim())
-    });
-    git.onStderr(reject);
-  })
-  
-  git.start()
-  
-  return promise;  
-}
-
-const remoteGitHubURL = (remoteURL) => {
-  return remoteURL.replace(/^git@github.com:/, 'https://github.com/').replace(/\.git/, '')
-}
+const git = require('git')
 
 class Repository {
-  constructor(directory) {
-    this.directory = directory
+  constructor(repository) {
+    this.branch = repository.branch
+    this.remote = repository.remote
+    this.url = this.remote.url
+      .replace(/^git@github.com:/, 'https://github.com/')
+      .replace(/\.git/, '')
   }
   
-  run(command) {
-    return git(command, this.directory)
+  viewURL(path) {
+    return `${this.url}/blob/${this.branch}${path}`
   }
   
-  view(path) {
-    path = path.replace(nova.workspace.path, '')
-    const url = `${this.url}/blob/${this.branch}${path}`
-    nova.openURL(url)
-  }
-  
-  blame(path) {
-    path = path.replace(nova.workspace.path, '')
-    const url = `${this.url}/blame/${this.branch}${path}`
-    nova.openURL(url)
-  }
-  
-  load(path) {
-    return new Promise((resolve, reject) => {
-      this.run('remote get-url origin').then((remoteURL) => {        
-        this.run('branch --show-current').then((branch) => {
-          this.remote = { url: remoteURL, name: 'origin' }
-          this.url = remoteGitHubURL(remoteURL)
-          this.branch = branch
-          resolve(this)
-        });
-      })
-    })
+  blameURL(path) {
+    return `${this.url}/blame/${this.branch}${path}`
   }
 }
 
@@ -59,19 +22,19 @@ const repositoryForDirectory = (directory) => {
   const gitDirectory = nova.path.join(directory, '.git')
 
   if(nova.fs.stat(gitDirectory)) {
-    return new Repository(gitDirectory)
+    return directory
   } else {
     return null
   }
 }
 
 const load = (directory) => {
-  const repository = repositoryForDirectory(directory)
+  const repositoryDirectory = repositoryForDirectory(directory)
   
   return new Promise((resolve, reject) => {
-    if(repository) {
-      repository.load().then(() => {
-        resolve(repository)
+    if(repositoryDirectory) {
+      git.load(repositoryDirectory).then((data) => {
+        resolve(new Repository(data))
       })
     } else {
       console.warn(`No git repository in ${directory}`)
@@ -82,13 +45,13 @@ const load = (directory) => {
 
 const viewFile = (path) => {
   load(nova.workspace.path).then((repository) => {
-    repository.view(path)
+    nova.openURL(repository.viewURL(path.replace(nova.workspace.path, '')))
   })
 }
 
 const viewBlame = (path) => {
   load(nova.workspace.path).then((repository) => {
-    repository.blame(path)
+    nova.openURL(repository.blameURL(path.replace(nova.workspace.path, '')))
   })
 }
 
